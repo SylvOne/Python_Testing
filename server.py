@@ -1,15 +1,17 @@
 import json
 from flask import Flask,render_template,request,redirect,flash,url_for
+import os
+from datetime import datetime
 
 
 def loadClubs():
-    with open('clubs.json') as c:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'clubs.json')) as c:
          listOfClubs = json.load(c)['clubs']
          return listOfClubs
 
 
 def loadCompetitions():
-    with open('competitions.json') as comps:
+    with open(os.path.join(os.path.dirname(__file__), 'competitions.json')) as comps:
          listOfCompetitions = json.load(comps)['competitions']
          return listOfCompetitions
 
@@ -46,6 +48,14 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
+
+    # Vérification de la date de la compétition
+    current_datetime = datetime.now()
+    competition_datetime = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+    if competition_datetime < current_datetime:
+        flash('Cannot book places for a past competition!')
+        return render_template('welcome.html', club=club, competitions=competitions)
+
     competition['numberOfPlaces'] = int(competition['numberOfPlaces'])-placesRequired
     club['points'] = int(club['points']) - placesRequired
     flash('Great-booking complete!')

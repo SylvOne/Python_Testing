@@ -6,7 +6,7 @@ import pytest
 
 
 """
-BUG: Point updates are not reflected
+BUG: bug/Point_updates_are_not_reflected
 """
 
 
@@ -28,6 +28,11 @@ def test_purchasePlaces_deduction(client, clubs, competitions):
         if club_data['name'] == club:
             original_points = int(club_data['points'])
             break
+
+    # Vérifier si la compétition est future
+    competition_date = datetime.datetime.strptime(comp['date'], '%Y-%m-%d %H:%M:%S')
+    if competition_date < datetime.datetime.now():
+        pytest.skip("Skipping test for a past competition")
 
     # When
     response = client.post('/purchasePlaces', data={'club': club, 'competition': competition_name, 'places': places})
@@ -53,3 +58,22 @@ def test_purchasePlaces_deduction(client, clubs, competitions):
     clubs.clear()
     competitions.extend(loadCompetitions())
     clubs.extend(loadClubs())
+
+
+"""
+BUG: bug/Booking_places_in_past_competitions
+"""
+
+
+def test_purchasePlaces_past_competition(client):
+    # Given
+    club = 'Simply Lift'
+    competition = 'Fall Classic'
+    places = 2
+
+    # When
+    response = client.post('/purchasePlaces', data={'club': club, 'competition': competition, 'places': places})
+
+    # Then
+    assert response.status_code == 200
+    assert b'Cannot book places for a past competition!' in response.data
