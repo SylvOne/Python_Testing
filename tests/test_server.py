@@ -118,6 +118,8 @@ def test_purchasePlaces_more_than_12_places(client, competitions, clubs):
 """
 BUG: Clubs shouldn't be able to book more than 12 places per competition (multiple_place_purchases)
 """
+
+
 def test_multiple_place_purchases(client, clubs, competitions):
     # Given
     club = 'Simply Lift'
@@ -134,7 +136,8 @@ def test_multiple_place_purchases(client, clubs, competitions):
     if competition_date < datetime.datetime.now():
         pytest.skip("Skipping past date : test for a more than 12 places (multiple places purchases)")
 
-    # Effectuez le premier achat de 6 places sachant que le club a déja acheté auparavant 3 place pour cette compétition
+    # Effectuez le premier achat de 6 places sachant que le club
+    # a déja acheté auparavant 3 place pour cette compétition
     response1 = client.post('/purchasePlaces', data={'club': club, 'competition': competition, 'places': places1})
     assert response1.status_code == 200
     assert b'Great-booking complete!' in response1.data
@@ -142,8 +145,7 @@ def test_multiple_place_purchases(client, clubs, competitions):
     # Accès aux competitions, clubs apres modification 1
     from Python_Testing.server import competitions, clubs
     updated_competitions = competitions
-    updated_clubs = clubs
-    
+
     # Vérifiez que le nombre de places disponibles pour la compétition a été correctement mis à jour
     updated_competition = [c for c in updated_competitions if c['name'] == competition][0]
     expected_places1 = int(initial_places_competition) - places1
@@ -155,15 +157,43 @@ def test_multiple_place_purchases(client, clubs, competitions):
     assert b'Cannot book more than 12 places' in response2.data
 
     # Accès aux competitions, clubs apres modification 2
-    from Python_Testing.server import competitions, clubs
+    from Python_Testing.server import competitions
     updated_competitions = competitions
-    updated_clubs = clubs
+
     # Vérifiez que le nombre de places disponibles pour la compétition reste inchangé
     updated_competition = [c for c in updated_competitions if c['name'] == competition][0]
     assert expected_places1 == int(updated_competition['numberOfPlaces'])
 
-    # Je reinitialise les modification apportée pour ne pas interférer avec les autres tests 
+    # Je reinitialise les modification apportée pour ne pas interférer avec les autres tests
     competitions.clear()
     clubs.clear()
     competitions.extend(loadCompetitions())
     clubs.extend(loadClubs())
+
+
+"""
+BUG: Clubs should not be able to use more than their points allowed
+"""
+
+
+def test_purchasePlaces_more_than_available_points_club(client, clubs):
+    # Given
+    club_name = 'Simply Lift'
+    competition_name = 'Spring Festival'
+    club = [c for c in clubs if c['name'] == club_name][0]
+    places = int(club['points']) + 1
+
+    # When
+    response = client.post(
+        '/purchasePlaces',
+        data={
+            'club': club_name,
+            'competition': competition_name,
+            'places': places
+        }
+    )
+    # Print the complete response data
+    print(response.data)
+    # Then
+    assert response.status_code == 200
+    assert b'Cannot book more available points' in response.data
