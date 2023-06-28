@@ -28,8 +28,13 @@ def index():
 
 @app.route('/showSummary',methods=['POST'])
 def showSummary():
-    club = [club for club in clubs if club['email'] == request.form['email']][0]
-    return render_template('welcome.html',club=club,competitions=competitions)
+    club = [club for club in clubs if club['email'] == request.form['email']]
+    if club:
+        club = club[0]
+        return render_template('welcome.html',club=club,competitions=competitions)
+    else:
+        flash("Sorry, that email wasn't found.")
+        return render_template('index.html')
 
 
 @app.route('/book/<competition>/<club>')
@@ -48,8 +53,9 @@ def purchasePlaces():
     competition = [c for c in competitions if c['name'] == request.form['competition']][0]
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
+    point_club_available = int(club['points'])
 
-     # Vérification du nombre de places demandées
+    # Vérification du nombre de places demandées
     places_booked = 0
     for booking in club['bookings']:
         if booking['competition'] == competition['name']:
@@ -58,6 +64,11 @@ def purchasePlaces():
     total_places_required = places_booked + placesRequired
     if total_places_required > 12:
         flash('Cannot book more than 12 places')
+        return render_template('welcome.html', club=club, competitions=competitions)
+
+    # Vérification du solde de points disponible
+    if placesRequired > point_club_available:
+        flash('Cannot book more available points')
         return render_template('welcome.html', club=club, competitions=competitions)
 
     # Vérification de la date de la compétition

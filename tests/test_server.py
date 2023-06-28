@@ -192,8 +192,48 @@ def test_purchasePlaces_more_than_available_points_club(client, clubs):
             'places': places
         }
     )
-    # Print the complete response data
-    print(response.data)
+
     # Then
     assert response.status_code == 200
     assert b'Cannot book more available points' in response.data
+
+
+"""
+BUG: Entering a unknown email crashes the app
+"""
+
+
+# With bad email
+def test_entering_a_unknown_email_crashes_the_app(client):
+    # Given
+    email1 = 'tartempion@truc.com'
+
+    # When
+    response = client.post(
+        '/showSummary',
+        data={
+            'email': email1,
+        }
+    )
+
+    # Then
+    assert response.status_code == 200
+    assert b"Sorry, that email wasn&#39;t found." in response.data
+
+
+# With Good email
+def test_entering_a_known_email_does_not_generate_error(client):
+    # Given
+    good_email = 'john@simplylift.co'
+
+    # When
+    response = client.post(
+        '/showSummary',
+        data={
+            'email': good_email,
+        }
+    )
+
+    # Then
+    assert response.status_code == 200
+    assert f"Welcome, {good_email}".encode() in response.data
