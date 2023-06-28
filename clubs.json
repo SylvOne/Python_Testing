@@ -2,15 +2,45 @@
     {
         "name":"Simply Lift",
         "email":"john@simplylift.co",
-        "points":"13"
+        "points":"7",
+        "bookings": [
+            {
+              "competition": "Fall Classic",
+              "places": 2
+            },
+            {
+              "competition": "Spring Festival",
+              "places": 1
+            }
+          ]
     },
     {
         "name":"Iron Temple",
         "email": "admin@irontemple.com",
-        "points":"4"
+        "points":"4",
+        "bookings": [
+            {
+              "competition": "Spring Festival",
+              "places": 1
+            },
+            {
+              "competition": "Fall Classic",
+              "places": 4
+            }
+          ]
     },
     {   "name":"She Lifts",
         "email": "kate@shelifts.co.uk",
-        "points":"12"
+        "points":"12",
+        "bookings": [
+            {
+              "competition": "Spring Festival",
+              "places": 1
+            },
+            {
+              "competition": "Summer Slam",
+              "places": 4
+            }
+          ]
     }
 ]}

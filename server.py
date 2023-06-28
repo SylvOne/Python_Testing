@@ -49,6 +49,17 @@ def purchasePlaces():
     club = [c for c in clubs if c['name'] == request.form['club']][0]
     placesRequired = int(request.form['places'])
 
+     # Vérification du nombre de places demandées
+    places_booked = 0
+    for booking in club['bookings']:
+        if booking['competition'] == competition['name']:
+            places_booked += booking['places']
+
+    total_places_required = places_booked + placesRequired
+    if total_places_required > 12:
+        flash('Cannot book more than 12 places')
+        return render_template('welcome.html', club=club, competitions=competitions)
+
     # Vérification de la date de la compétition
     current_datetime = datetime.now()
     competition_datetime = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')

@@ -77,3 +77,39 @@ def test_purchasePlaces_past_competition(client):
     # Then
     assert response.status_code == 200
     assert b'Cannot book places for a past competition!' in response.data
+
+
+"""
+BUG: Clubs shouldn't be able to book more than 12 places per competition
+"""
+
+
+def test_purchasePlaces_more_than_12_places(client, competitions, clubs):
+    # Given
+    club = 'Simply Lift'
+    competition_name = 'Spring Festival'
+    places = 13
+    competition = None
+
+    # Obtention de la compétition correpondante à competition_name
+    for comp in competitions:
+        if comp['name'] == competition_name:
+            competition = comp
+            break
+
+    # Vérifier si la compétition est future
+    competition_date = datetime.datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
+    if competition_date < datetime.datetime.now():
+        pytest.skip("Skipping test for a more than 12 places")
+
+    # When
+    response = client.post('/purchasePlaces', data={'club': club, 'competition': competition_name, 'places': places})
+
+    # Then
+    assert response.status_code == 200
+    assert b'Cannot book more than 12 places' in response.data
+
+    competitions.clear()
+    clubs.clear()
+    competitions.extend(loadCompetitions())
+    clubs.extend(loadClubs())
