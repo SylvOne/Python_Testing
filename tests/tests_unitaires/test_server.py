@@ -116,6 +116,25 @@ def test_purchasePlaces_more_than_12_places(client, competitions, clubs):
 
 
 """
+BUG : Test d'achat de places avec plus de places que disponibles dans la compétition
+"""
+
+
+def test_purchasePlaces_more_places_than_are_available_per_competition(client):
+    # Given
+    club = 'Simply Lift'
+    competition_name = 'Spring Festival'
+    places = 27
+
+    # When
+    result = client.post("/purchasePlaces", data={"competition": competition_name, "club": club, "places": places})
+
+    # Then
+    assert result.status_code == 200
+    assert b"Cannot book more places than are available per competition" in result.data
+
+
+"""
 BUG: Clubs shouldn't be able to book more than 12 places per competition (multiple_place_purchases)
 """
 
