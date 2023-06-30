@@ -80,6 +80,25 @@ def test_purchasePlaces_past_competition(client):
 
 
 """
+BUG: bug/Booking_places_in_past_competitions
+"""
+
+
+def test_purchasePlaces_less_1_place(client):
+    # Given
+    club = 'Simply Lift'
+    competition = 'Fall Classic'
+    places = 0
+
+    # When
+    result = client.post("/purchasePlaces", data={"competition": competition, "club": club, "places": places})
+
+    # Then
+    assert result.status_code == 200
+    assert b"Cannot book less than 1 place" in result.data
+
+
+"""
 BUG: Clubs shouldn't be able to book more than 12 places per competition
 """
 
@@ -269,7 +288,7 @@ def test_logout(client):
     # Then
     assert result.status_code == expected_status_code
 
-
+# View club points
 def test_view_club_points(client):
     # Given
     expected_status_code = 200
