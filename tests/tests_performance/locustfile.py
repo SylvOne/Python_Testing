@@ -2,7 +2,7 @@ from locust import HttpUser, task, between
 
 
 class ProjectPerfTest(HttpUser):
-    wait_time = between(5, 15)  # Temps d'attente entre les taches/utilisateurs
+    wait_time = between(1, 2)  # Temps d'attente entre les taches/utilisateurs
 
     @task
     def club_table(self):
