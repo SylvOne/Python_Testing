@@ -71,6 +71,12 @@ def purchasePlaces():
     if placesRequired < 1:
         flash('Cannot book less than 1 place')
         return render_template('welcome.html', club=club, competitions=competitions, date=actual_date)
+    
+    # Vérification que le nombre de place demandé 
+    # ne soit pas supérieur au nombre de places disponible pour la compétition
+    if placesRequired > placesCompetition:
+        flash('Cannot book more places than are available per competition')
+        return render_template('welcome.html', club=club, competitions=competitions, date=actual_date)
 
     # Vérification du nombre de places demandées
     places_booked = 0
