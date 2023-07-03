@@ -60,6 +60,11 @@ def purchasePlaces():
         flash('Cannot book more than 12 places')
         return render_template('welcome.html', club=club, competitions=competitions)
 
+    # Vérification du solde de points disponible
+    if placesRequired > point_club_available:
+        flash('Cannot book more available points')
+        return render_template('welcome.html', club=club, competitions=competitions, date=actual_date)
+        
     # Vérification de la date de la compétition
     current_datetime = datetime.now()
     competition_datetime = datetime.strptime(competition['date'], '%Y-%m-%d %H:%M:%S')
