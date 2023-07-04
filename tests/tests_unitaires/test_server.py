@@ -237,6 +237,32 @@ def test_purchasePlaces_more_than_available_points_club(client, clubs):
 
 
 """
+BUG: Clubs should not be able to use more than their points allowed
+"""
+
+
+def test_negative_points_balance(client, competitions, clubs):
+    # Sélectionner un club
+    club_name = 'Iron Temple'
+    competition_name = 'Spring Festival'
+
+    # 1ere et 2ieme réservation
+    placesRequired1 = 3
+    placesRequired2 = 3
+
+    # Envoi du 1er achat
+    response = client.post('/purchasePlaces', data={'club': club_name, 'competition': competition_name, 'places': placesRequired1})
+    assert response.status_code == 200
+    assert b"Great-booking complete!" in response.data
+
+    # Envoi du 2ieme achat
+    response = client.post('/purchasePlaces', data={'club': club_name, 'competition': competition_name, 'places': placesRequired2})
+    assert response.status_code == 200
+    assert b"Cannot book more available points" in response.data
+
+
+
+"""
 BUG: Entering a unknown email crashes the app
 """
 
